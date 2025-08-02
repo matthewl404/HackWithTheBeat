@@ -1,1 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RhythmCode</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="home-screen">
+    <h1>RhythmCode</h1>
+    <label for="language-select">Choose Language:</label>
+    <select id="language-select">
+      <option value="" disabled selected>Select language</option>
+      <option value="python">Python</option>
+      <option value="javascript">JavaScript</option>
+      <option value="java">Java</option>
+      <option value="html">HTML</option>
+      <option value="css">CSS</option>
+    </select>
+    <br/><br/>
+    <label for="song-input">Enter YouTube URL or Audio File:</label>
+    <input type="text" id="song-input" placeholder="Paste YouTube link here" />
+    <br /><br />
+    <button id="start-game" disabled>Start Game</button>
+    <br /><br />
+    <button id="toggle-leaderboard">Toggle Leaderboard</button>
+
+  <script src="app.js"></script>
+</body>
+</html>
 
