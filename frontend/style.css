@@ -1,1 +1,46 @@
+body {
+  background: #0f0f2f;
+  color: #aaffff;
+  font-family: 'Courier New', Courier, monospace;
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 3em;
+  color: #66ccff;
+  text-shadow: 0 0 10px #33bbff;
+}
+
+select, input, button {
+  padding: 10px;
+  font-size: 1em;
+  margin: 5px;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+}
+
+button {
+  background-color: #3366ff;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 0 10px #3366ff;
+}
+
+button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+#leaderboard {
+  margin-top: 20px;
+  background-color: #001122;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
