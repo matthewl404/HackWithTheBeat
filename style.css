@@ -121,47 +121,40 @@ button:disabled {
   padding: 0 2px;
 }
 
+/* Beat Indicator Styles */
 #beat-container {
   position: relative;
   margin: 30px auto;
-  text-align: center;
+  width: 100px;
+  height: 100px;
+}
+
+#beat-outline {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-sizing: border-box;
 }
 
 #beat-indicator {
+  position: absolute;
   width: 80px;
   height: 80px;
   background: #66ccff;
   border-radius: 50%;
-  margin: 0 auto;
-  animation: beat-pulse 0.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  left: 10px;
+  top: 10px;
+  animation: beat-pulse 0.6s ease-in-out infinite;
   transform-origin: center;
-  box-shadow: 
-    0 0 10px #66ccff,
-    0 0 0 3px #aaffff;
-  opacity: 0.7;
-  position: relative;
+  box-shadow: 0 0 15px #66ccff;
 }
 
 @keyframes beat-pulse {
-  0% { 
-    transform: scale(1);
-    box-shadow: 0 0 10px #66ccff, 0 0 0 3px #aaffff;
-  }
-  50% { 
-    transform: scale(1.4); /* More pronounced scaling */
-    box-shadow: 0 0 20px #66ccff, 0 0 0 5px #ffffff; /* Brighter outline at peak */
-    opacity: 1;
-  }
-  100% { 
-    transform: scale(1);
-    box-shadow: 0 0 10px #66ccff, 0 0 0 3px #aaffff;
-  }
-}
-
-#beat-label {
-  color: #aaffff;
-  margin-top: 10px;
-  font-size: 0.9em;
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
 }
 
 #score-display {
@@ -241,11 +234,15 @@ button:disabled {
   #player {
     height: 200px;
   }
+  #beat-container {
+    width: 80px;
+    height: 80px;
+  }
   #beat-indicator {
     width: 60px;
     height: 60px;
-    line-height: 60px;
-    font-size: 2em;
+    left: 10px;
+    top: 10px;
   }
   #code-input {
     font-size: 16px;
