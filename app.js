@@ -19,6 +19,17 @@ let fullTranscript = '';
 let transcriptChunks = [];
 let currentChunkIndex = 0;
 
+document.addEventListener('DOMContentLoaded', () => {
+  const homeScreen = document.getElementById('home-screen');
+  const gameScreen = document.getElementById('game-screen');
+  const transcriptBox = document.getElementById('transcript-box');
+
+  // Set initial visibility
+  homeScreen.style.display = 'block';
+  gameScreen.style.display = 'none';
+  transcriptBox.style.display = 'none';
+});
+
 function onYouTubeIframeAPIReady() {
   // makes things work
 }
@@ -103,6 +114,7 @@ async function startGame() {
     
     document.getElementById('code-input').focus();
     gameScreen.style.display = 'block';
+    if (player && player.playVideo) player.playVideo();
     document.getElementById('transcript-box').style.display = 'none';
     
   } catch (error) {
@@ -233,7 +245,7 @@ startGameBtn.addEventListener('click', async () => {
         videoId: videoId,
         events: {
           'onReady': (event) => {
-            event.target.playVideo();
+          
           },
           'onError': () => {
             throw new Error("Error loading video");

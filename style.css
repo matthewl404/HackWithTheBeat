@@ -219,3 +219,31 @@ textarea {
     font-size: 2em;
   }
 }
+#home-screen {
+  display: block; 
+}
+#game-screen, #transcript-box {
+  display: none; 
+}
+#home-screen {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  display: block; /* Explicitly visible */
+}
+
+#game-screen {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  display: none; /* Hidden by default */
+}
+
+#transcript-box {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #001122;
+  border-radius: 10px;
+  display: none; /* Hidden by default */
+}
