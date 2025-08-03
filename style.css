@@ -121,3 +121,21 @@ button:disabled {
     font-size: 1.2em;
   }
 }
+#language-select {
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+#language-select:hover {
+  background: #e0e0e0;
+  transform: scale(1.05);
+}
+#language-select:focus {
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
