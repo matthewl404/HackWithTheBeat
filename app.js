@@ -45,7 +45,7 @@ function onYouTubeIframeAPIReady() {
 // Game Functions
 async function startGame() {
   const btn = document.getElementById('start-with-transcript');
-  const transcript = document.getElementById('user-transcript').value.trim();
+  const transcript = document.getElementById('user-transcript').value.();
   
   showSpinner(btn);
   btn.textContent = 'Processing...';
