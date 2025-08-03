@@ -8,6 +8,8 @@ const gameScreen = document.getElementById('game-screen');
 const transcriptBox = document.getElementById('transcript-box');
 const codeInput = document.getElementById('code-input');
 const codeDisplay = document.getElementById('code-display');
+const bpmSlider = document.getElementById('bpm-slider');
+const bpmValue = document.getElementById('bpm-value');
 
 // Game State
 let player = null;
@@ -15,6 +17,7 @@ let currentSnippet = '';
 let currentCharIndex = 0;
 let bpm = 100;
 let beatInterval = null;
+let beatTimeout = null;
 let lastBeatTime = 0;
 let score = 0;
 let correctChars = 0;
@@ -23,6 +26,7 @@ let onBeatHits = 0;
 let fullTranscript = '';
 let transcriptChunks = [];
 let currentChunkIndex = 0;
+let isOnBeat = false;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -74,46 +78,48 @@ async function startGame() {
   }
 }
 
-let isOnBeat = false;
-let beatTimeout = null;
-
 function startBeat() {
   const beatDuration = 60000 / bpm;
   clearInterval(beatInterval);
   clearTimeout(beatTimeout);
   
+  // Start animation immediately
+  lastBeatTime = Date.now();
+  isOnBeat = true;
+  document.getElementById('beat-outline').style.boxShadow = '0 0 15px #66ff66';
+  
   beatInterval = setInterval(() => {
     lastBeatTime = Date.now();
     isOnBeat = true;
-    
     document.getElementById('beat-outline').style.boxShadow = '0 0 15px #66ff66';
     
     beatTimeout = setTimeout(() => {
       isOnBeat = false;
       document.getElementById('beat-outline').style.boxShadow = 'none';
-    }, beatDuration * 0.2); 
+    }, beatDuration * 0.2);
   }, beatDuration);
 }
 
 function checkKeyPress(e) {
   if (e.key.length > 1 || e.ctrlKey || e.altKey || e.metaKey) return;
   
+  e.preventDefault();
+  
   const currentTime = Date.now();
-  const beatWindow = 60000 / bpm * 0.2; // 20% of beat duration
-  const isOnBeat = Math.abs(currentTime - lastBeatTime) < beatWindow;
+  const beatWindow = 60000 / bpm * 0.2;
+  const isOnBeatNow = Math.abs(currentTime - lastBeatTime) < beatWindow;
 
   if (e.key === currentSnippet[currentCharIndex]) {
     const span = document.createElement('span');
     span.className = 'char-highlight';
     span.textContent = e.key;
     
-    if (isOnBeat) {
+    if (isOnBeatNow) {
       span.classList.add('on-beat');
       score += 2;
       onBeatHits++;
       
       // Visual feedback
-      span.style.animation = 'pulse 0.3s';
       document.getElementById('beat-indicator').style.backgroundColor = '#66ff66';
       setTimeout(() => {
         document.getElementById('beat-indicator').style.backgroundColor = '#66ccff';
@@ -125,12 +131,13 @@ function checkKeyPress(e) {
     codeDisplay.replaceChild(span, codeDisplay.childNodes[currentCharIndex]);
     correctChars++;
     currentCharIndex++;
-  } else {
+  } else if (e.key !== 'Shift') {
     const span = document.createElement('span');
     span.className = 'char-highlight incorrect';
     span.textContent = currentSnippet[currentCharIndex];
     codeDisplay.replaceChild(span, codeDisplay.childNodes[currentCharIndex]);
   }
+  
   updateDisplay();
   
   if (currentCharIndex >= currentSnippet.length) {
@@ -233,9 +240,20 @@ startGameBtn.addEventListener('click', async () => {
     homeScreen.style.display = 'none';
     transcriptBox.style.display = 'block';
 
-    if (typeof YT === 'undefined') {
-      throw new Error("YouTube API failed to load");
-    }
+    // Wait for YT API to load
+    await new Promise((resolve, reject) => {
+      const checkReady = setInterval(() => {
+        if (typeof YT !== 'undefined' && YT.Player) {
+          clearInterval(checkReady);
+          resolve();
+        }
+      }, 100);
+      
+      setTimeout(() => {
+        clearInterval(checkReady);
+        reject(new Error("YouTube API failed to load"));
+      }, 5000);
+    });
 
     if (player) {
       player.loadVideoById(videoId);
@@ -251,6 +269,7 @@ startGameBtn.addEventListener('click', async () => {
       });
     }
   } catch (error) {
+    console.error(error);
     alert(error.message);
     homeScreen.style.display = 'block';
     transcriptBox.style.display = 'none';
@@ -295,7 +314,7 @@ function renderLeaderboard() {
 }
 
 // Event Listeners
-codeInput.addEventListener('keypress', checkKeyPress);
+codeInput.addEventListener('keydown', checkKeyPress);
 document.getElementById('back-button').addEventListener('click', endGame);
 document.getElementById('start-with-transcript').addEventListener('click', async function() {
   const btn = this;
@@ -325,6 +344,23 @@ songInput.addEventListener('input', () => {
   startGameBtn.disabled = !songInput.value.trim();
 });
 
+document.getElementById('user-transcript').addEventListener('input', () => {
+  document.getElementById('start-with-transcript').disabled = 
+    !document.getElementById('user-transcript').value.trim();
+});
+
+bpmSlider.addEventListener('input', (e) => {
+  bpm = e.target.value;
+  bpmValue.textContent = bpm;
+  if (beatInterval) startBeat();
+});
+
+function checkInputs() {
+  startGameBtn.disabled = !songInput.value.trim();
+  document.getElementById('start-with-transcript').disabled = 
+    !document.getElementById('user-transcript').value.trim();
+}
+
 // Utilities
 function extractVideoID(url) {
   const regex = /(?:https?:\/\/)?(?:www\.)?youtu(?:\.be\/|be\.com\/watch\?v=)([\w-]{11})/;
@@ -339,12 +375,3 @@ function getNextChunk() {
   }
   return { chunk: transcriptChunks[currentChunkIndex], completedAll: false };
 }
-
-// Load YouTube API
-const tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-tag.onerror = () => {
-  alert("Failed to load YouTube API. Please check your internet connection.");
-  startGameBtn.disabled = true;
-};
-document.head.appendChild(tag);
