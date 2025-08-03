@@ -150,6 +150,7 @@ button:disabled {
   animation: beat-pulse 1s ease-out infinite;
   box-shadow: 0 0 15px #66ccff;
   opacity: 0; 
+  transition: background-color 0.2s;
 }
 
 @keyframes beat-pulse {
