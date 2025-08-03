@@ -101,19 +101,24 @@ function startBeat() {
 }
 
 function checkKeyPress(e) {
-  if (e.key.length > 1 || e.ctrlKey || e.altKey || e.metaKey) return;
+  // Allow normal typing behavior first
+  const input = e.target;
+  const currentChar = input.value[input.value.length - 1]; // Get last typed char
   
-  e.preventDefault();
+  // Prevent processing if no character was actually typed
+  if (!currentChar) return;
   
-  const currentTime = Date.now();
-  const beatWindow = 60000 / bpm * 0.2;
-  const isOnBeatNow = Math.abs(currentTime - lastBeatTime) < beatWindow;
-
-  if (e.key === currentSnippet[currentCharIndex]) {
+  // Process the character
+  if (currentChar === currentSnippet[currentCharIndex]) {
     const span = document.createElement('span');
     span.className = 'char-highlight';
-    span.textContent = e.key;
+    span.textContent = currentChar;
     
+    // Check if typed on beat
+    const currentTime = Date.now();
+    const beatWindow = 60000 / bpm * 0.2;
+    const isOnBeatNow = Math.abs(currentTime - lastBeatTime) < beatWindow;
+
     if (isOnBeatNow) {
       span.classList.add('on-beat');
       score += 2;
@@ -128,24 +133,29 @@ function checkKeyPress(e) {
       score += 1;
     }
     
-    codeDisplay.replaceChild(span, codeDisplay.childNodes[currentCharIndex]);
+    // Update display
+    codeDisplay.children[currentCharIndex].replaceWith(span);
     correctChars++;
     currentCharIndex++;
-  } else if (e.key !== 'Shift') {
+  } else {
+    // Mark incorrect
     const span = document.createElement('span');
     span.className = 'char-highlight incorrect';
     span.textContent = currentSnippet[currentCharIndex];
-    codeDisplay.replaceChild(span, codeDisplay.childNodes[currentCharIndex]);
+    codeDisplay.children[currentCharIndex].replaceWith(span);
   }
   
   updateDisplay();
   
+  // Clear input but keep focus
+  input.value = '';
+  
+  // Check if snippet completed
   if (currentCharIndex >= currentSnippet.length) {
     clearInterval(beatInterval);
     showResults();
   }
 }
-
 // Helper Functions
 function showSpinner(button) {
   button.classList.add('button-loading');
