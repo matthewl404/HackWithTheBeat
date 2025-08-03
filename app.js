@@ -172,8 +172,19 @@ function hideSpinner(button) {
   button.disabled = false;
 }
 
-function processTranscript(text) {
-  return text.split(/(?<=[.!?])\s+/).filter(chunk => chunk.length > 10);
+function processTranscript(text) 
+{
+  const textChunks = text.match(/[^.!?]+[.!?]/g);
+  if(!textChunks)
+    return [];
+  const trimmedChunks=[];
+  for(let chunk of textChunks)
+    {
+      const trimmed = chunk.trim();
+      if(trimmed.length>10)
+        trimmedChunks.push(trimmed);
+    }
+  //return text.split(/(?<=[.!?])\s+/).filter(chunk => chunk.length > 10);
 }
 
 function prepareNewSnippet() {
