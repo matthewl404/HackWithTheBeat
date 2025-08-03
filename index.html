@@ -16,20 +16,23 @@
   <button id="start-game" disabled>Start Game</button>
   <br /><br />
 
-  <div style="text-align: center;">
-    <button id="toggle-leaderboard">Toggle History</button>
-    <div id="leaderboard">
-      <h2>History</h2>
-      <ul id="leaderboard-list"></ul>
+  <div class="history-container">
+      <button id="toggle-leaderboard">Toggle History</button>
+      <div id="leaderboard">
+        <h2>History</h2>
+        <ul id="leaderboard-list"></ul>
+      </div>
     </div>
   </div>
-</div>
 
   <div id="game-screen">
     <div id="player"></div>
+    <div id="beat-container">
+      <div id="beat-indicator">●</div>
+      <div id="beat-label">BEAT</div>
+    </div>
     <div id="code-display"></div>
-    <input type="text" id="code-input">
-    <div id="beat-indicator">●</div>
+    <input type="text" id="code-input" placeholder="Start typing when beats appear...">
     <div id="score-display">Score: 0 | Accuracy: 0% | Timing: 0%</div>
     <button id="back-button">Back to Menu</button>
   </div>
