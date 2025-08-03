@@ -181,6 +181,7 @@ function prepareNewSnippet() {
   currentSnippet.split('').forEach(char => {
     const span = document.createElement('span');
     span.textContent = char;
+    span.className = 'char-highlight'; 
     codeDisplay.appendChild(span);
   });
   codeInput.value = '';
@@ -190,6 +191,8 @@ function prepareNewSnippet() {
   totalChars = 0;
   onBeatHits = 0;
   updateDisplay();
+  
+  codeInput.focus();
 }
 
 function updateDisplay() {
@@ -324,7 +327,7 @@ function renderLeaderboard() {
 }
 
 // Event Listeners
-codeInput.addEventListener('keydown', checkKeyPress);
+codeInput.addEventListener('input', checkKeyPress);
 document.getElementById('back-button').addEventListener('click', endGame);
 document.getElementById('start-with-transcript').addEventListener('click', async function() {
   const btn = this;
