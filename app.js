@@ -129,16 +129,18 @@ async function startGame() {
 
 function animateBeat() {
   const indicator = document.getElementById('beat-indicator');
-  indicator.style.transform = 'scale(1.5)';
+  indicator.style.transform = 'scale(1.8)'; 
+  indicator.style.color = '#ff66cc'; 
   setTimeout(() => {
-    indicator.style.transform = 'scale(1)';
-  }, 100);
+    indicator.style.transform = 'scale(1.3)';
+    indicator.style.color = '#66ccff';
+  }, 150);
 }
 
 function checkKeyPress(e) {
   if (e.key.length > 1) return;
   const currentTime = Date.now();
-  const isOnBeat = Math.abs(currentTime - lastBeatTime) < 200;
+  const isOnBeat = Math.abs(currentTime - lastBeatTime) < 250;
 
   if (e.key === currentSnippet[currentCharIndex]) {
     if (e.ctrlKey || e.altKey || e.metaKey) return;
