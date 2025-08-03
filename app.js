@@ -76,19 +76,10 @@ async function startGame() {
 
 function startBeat() {
   const beatDuration = 60000 / bpm;
+  clearInterval(beatInterval);
   beatInterval = setInterval(() => {
-    lastBeatTime = Date.now(); 
+    lastBeatTime = Date.now(); // This matches the CSS animation peak at 50%
   }, beatDuration);
-}
-
-function animateBeat() {
-  const indicator = document.getElementById('beat-indicator');
-  indicator.style.transform = 'scale(1.5)';
-  indicator.style.color = '#ff66cc';
-  setTimeout(() => {
-    indicator.style.transform = 'scale(1)';
-    indicator.style.color = '#66ccff';
-  }, 200);
 }
 
 function checkKeyPress(e) {
@@ -289,8 +280,8 @@ function renderLeaderboard() {
 // Event Listeners
 codeInput.addEventListener('keypress', checkKeyPress);
 document.getElementById('back-button').addEventListener('click', endGame);
-document.getElementById('start-with-transcript').addEventListener('click', async () => {
-  const btn = event.target;
+document.getElementById('start-with-transcript').addEventListener('click', async function() {
+  const btn = this;
   showSpinner(btn);
   btn.textContent = 'Processing...';
   try {
