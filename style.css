@@ -1,4 +1,4 @@
-/* Base Styles */
+/* ========== BASE STYLES ========== */
 body {
   background: #0f0f2f;
   color: #aaffff;
@@ -13,10 +13,11 @@ h1 {
   color: #66ccff;
   text-shadow: 0 0 10px #33bbff;
   margin-bottom: 30px;
+  letter-spacing: 1px;
 }
 
-/* Input and Button Styles */
-select, input, button {
+/* ========== UI ELEMENTS ========== */
+button, input, select {
   padding: 12px 20px;
   font-size: 1em;
   margin: 10px;
@@ -24,6 +25,7 @@ select, input, button {
   border: none;
   outline: none;
   font-family: inherit;
+  transition: all 0.2s ease;
 }
 
 button {
@@ -31,17 +33,12 @@ button {
   color: white;
   cursor: pointer;
   box-shadow: 0 0 10px #3366ff;
-  transition: all 0.2s ease;
   min-width: 200px;
 }
 
 button:hover {
   transform: translateY(-2px);
   box-shadow: 0 0 15px #3366ff;
-}
-
-button:active {
-  transform: translateY(1px);
 }
 
 button:disabled {
@@ -51,44 +48,27 @@ button:disabled {
   opacity: 0.7;
 }
 
-/* Game Screens */
-#home-screen, #game-screen {
+/* ========== GAME SCREENS ========== */
+#home-screen {
+  display: block;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+#game-screen, #transcript-box {
+  display: none;
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
 }
 
 #transcript-box {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
   background-color: #001122;
   border-radius: 10px;
 }
 
-textarea {
-  width: 100%;
-  min-height: 150px;
-  padding: 15px;
-  border-radius: 8px;
-  background-color: #001933;
-  color: white;
-  border: 1px solid #3366ff;
-  margin-bottom: 20px;
-}
-
-/* YouTube Player */
-#player {
-  margin: 20px auto;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 0 20px #3366ff;
-  width: 100%;
-  max-width: 640px;
-  height: 360px;
-}
-
-/* Typing Game Elements */
+/* ========== TYPING GAME ELEMENTS ========== */
 #code-display {
   font-size: 1.5em;
   letter-spacing: 1px;
@@ -98,7 +78,8 @@ textarea {
   border-radius: 10px;
   min-height: 1.5em;
   line-height: 1.6;
-  text-align: left;
+  text-align: center;
+  border: 2px solid #3366ff;
 }
 
 #code-input {
@@ -114,6 +95,7 @@ textarea {
 
 .char-highlight {
   position: relative;
+  transition: all 0.2s ease;
 }
 
 .char-highlight.correct {
@@ -132,175 +114,51 @@ textarea {
 }
 
 .char-highlight.on-beat {
-  color: #66ccff;
-  text-shadow: 0 0 5px #66ccff;
+  background: rgba(102, 204, 255, 0.2);
+  border-radius: 3px;
+  padding: 0 2px;
 }
 
-/* Beat Indicator */
-#beat-indicator {
-  font-size: 5em;
-  color: #66ccff;
-  margin: 30px 0;
-  text-shadow: 0 0 25px #66ccff;
-  animation: pulse 0.8s ease-in-out infinite alternate;
-  transform-origin: center;
-  display: inline-block;
-  width: 60px;
-  height: 60px;
-  line-height: 60px;
-  border-radius: 50%;
-  background: rgba(102, 204, 255, 0.1);
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(0.9);
-    opacity: 0.8;
-    box-shadow: 0 0 10px #66ccff;
-  }
-  100% {
-    transform: scale(1.3);
-    opacity: 1;
-    box-shadow: 0 0 30px #66ccff;
-  }
-}
-
-/* Score Display */
-#score-display {
-  font-size: 1.2em;
-  margin: 20px 0;
-  padding: 15px;
-  background-color: #001122;
-  border-radius: 8px;
-}
-
-/* Back Button */
-#back-button {
-  background-color: #ff3366;
-  box-shadow: 0 0 10px #ff3366;
-  margin-top: 30px;
-}
-
-#back-button:hover {
-  box-shadow: 0 0 15px #ff3366;
-}
-
-/* Loading Spinner */
-.button-loading {
-  position: relative;
-  pointer-events: none;
-}
-
-.loading-spinner {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 3px solid rgba(102, 204, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #66ccff;
-  animation: spin 1s linear infinite;
-  margin-left: 8px;
-  vertical-align: middle;
-}
-
-/* Animations */
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
+/* ========== BEAT INDICATOR ========== */
 #beat-container {
   position: relative;
-  margin: 20px auto;
+  margin: 30px auto;
   text-align: center;
+}
+
+#beat-indicator {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+  line-height: 80px;
+  font-size: 3em;
+  color: #66ccff;
+  background: rgba(102, 204, 255, 0.1);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 15px #66ccff,
+    inset 0 0 10px #66ccff33;
+  animation: beat-pulse 0.8s ease-out infinite alternate;
+}
+
+@keyframes beat-pulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.2); opacity: 1; }
 }
 
 #beat-label {
   color: #aaffff;
-  font-size: 1em;
-  margin-top: 5px;
+  margin-top: 10px;
+  font-size: 0.9em;
   text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  #player {
-    height: 300px;
-  }
-  
-  h1 {
-    font-size: 2em;
-  }
-  
-  #code-display {
-    font-size: 1.4em;
-    padding: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  body {
-    padding: 15px;
-  }
-  
-  #player {
-    height: 200px;
-  }
-  
-#code-display {
-  font-size: 1.8em;
   letter-spacing: 2px;
-  margin: 40px 0;
-  padding: 25px;
-  background-color: #001122;
-  border-radius: 15px;
-  min-height: 2em;
-  line-height: 1.8;
-  text-align: center;
-  border: 2px solid #3366ff;
-  }
-  
-  button, input, select {
-    width: 100%;
-    margin: 8px 0;
-  }
-  
-  #beat-indicator {
-    font-size: 2em;
-  }
-}
-#home-screen {
-  display: block; 
-}
-#game-screen, #transcript-box {
-  display: none; 
-}
-#home-screen {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  display: block; /* Explicitly visible */
 }
 
-#game-screen {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  display: none; /* Hidden by default */
-}
-
-#transcript-box {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #001122;
-  border-radius: 10px;
-  display: none; /* Hidden by default */
-}
+/* ========== HISTORY/LEADERBOARD ========== */
 #leaderboard {
   display: none;
   position: absolute;
-  top: 40%; /* Just below the button */
+  top: 40%;
   left: 50%;
   transform: translateX(-50%);
   width: 550px;
@@ -337,8 +195,51 @@ textarea {
   text-align: left;
   transition: background 0.2s;
 }
+
 #leaderboard-list li:first-child {
   background: linear-gradient(90deg, #223366 60%, #3366ff44 100%);
   border: 2px solid #66ccff;
   box-shadow: 0 0 10px #66ccff55;
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 768px) {
+  #player {
+    height: 300px;
+  }
+  
+  h1 {
+    font-size: 2em;
+  }
+  
+  #code-display {
+    font-size: 1.4em;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 15px;
+  }
+  
+  #player {
+    height: 200px;
+  }
+  
+  #code-display {
+    font-size: 1.2em;
+    padding: 15px;
+  }
+  
+  button, input, select {
+    width: 100%;
+    margin: 8px 0;
+  }
+  
+  #beat-indicator {
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    font-size: 2em;
+  }
 }
