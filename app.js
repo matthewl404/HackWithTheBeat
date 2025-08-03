@@ -19,6 +19,28 @@ let fullTranscript = '';
 let transcriptChunks = [];
 let currentChunkIndex = 0;
 
+function onYouTubeIframeAPIReady() {
+  // makes things work
+}
+
+
+function showSpinner(button) {
+  button.classList.add('button-loading');
+  const spinner = document.createElement('span');
+  spinner.className = 'loading-spinner';
+  button.appendChild(spinner);
+  button.disabled = true;
+}
+
+function hideSpinner(button) {
+  button.classList.remove('button-loading');
+  const spinner = button.querySelector('.loading-spinner');
+  if (spinner) {
+    button.removeChild(spinner);
+  }
+  button.disabled = false;
+}
+
 function getNextChunk() {
   currentChunkIndex++;
   if (currentChunkIndex >= transcriptChunks.length) {
@@ -50,29 +72,46 @@ function prepareNewSnippet() {
 }
   
 async function startGame() {
+  const btn = document.getElementById('start-with-transcript');
   const transcript = document.getElementById('user-transcript').value.trim();
-  if (!transcript) {
-    alert("Please paste a transcript first");
-    return;
+  
+  // Show spinner immediately
+  showSpinner(btn);
+  btn.textContent = 'Processing...';
+
+  try {
+    if (!transcript) {
+      throw new Error("Please paste a transcript first");
+    }
+    
+    fullTranscript = transcript;
+    transcriptChunks = processTranscript(fullTranscript);
+    currentChunkIndex = 0;
+    
+    if (transcriptChunks.length === 0) {
+      throw new Error("Couldn't extract usable text from transcript");
+    }
+    
+    currentSnippet = transcriptChunks[0];
+    prepareNewSnippet();
+    
+    const beatDuration = 60000 / bpm;
+    beatInterval = setInterval(() => {
+      lastBeatTime = Date.now();
+      animateBeat();
+    }, beatDuration);
+    
+    document.getElementById('code-input').focus();
+    gameScreen.style.display = 'block';
+    document.getElementById('transcript-box').style.display = 'none';
+    
+  } catch (error) {
+    alert(error.message);
+    homeScreen.style.display = 'block';
+  } finally {
+    hideSpinner(btn);
+    btn.textContent = 'Start Typing Game';
   }
-  
-  fullTranscript = transcript;
-  transcriptChunks = processTranscript(fullTranscript);
-  currentChunkIndex = 0;
-  
-  if (transcriptChunks.length === 0) {
-    alert("Couldn't extract usable text from transcript");
-    return;
-  }
-  currentSnippet = transcriptChunks[0];
-  prepareNewSnippet();
-  const beatDuration = 60000 / bpm;
-  beatInterval = setInterval(() => {
-    lastBeatTime = Date.now();
-    animateBeat();
-  }, beatDuration);
-  
-  document.getElementById('code-input').focus();
 }
 
 function animateBeat() {
@@ -167,38 +206,64 @@ function showResults() {
 document.getElementById('code-input').addEventListener('keypress', checkKeyPress);
 document.getElementById('back-button').addEventListener('click', endGame);
 
-startGameBtn.addEventListener('click', () => {
+startGameBtn.addEventListener('click', async () => {
   const videoId = extractVideoID(songInput.value.trim());
   if (!videoId) {
     alert("Please enter a valid YouTube URL first");
     return;
   }
-  homeScreen.style.display = 'none';
-  document.getElementById('transcript-box').style.display = 'block';
-  if (player) {
-    player.loadVideoById(videoId);
-  } else {
-    player = new YT.Player('player', {
-      height: '360',
-      width: '640',
-      videoId: videoId,
-      events: {
-        'onReady': (event) => {
-          event.target.playVideo();
-          startGame();
-          startGameBtn.disabled = false;
-          startGameBtn.textContent = 'Start Game';
-        },
-        'onError': () => {
-          alert("Error loading video")
-          startGameBtn.disabled = false;
-          startGameBtn.textContent = 'Start Game';
+
+  showSpinner(startGameBtn);
+  startGameBtn.textContent = 'Loading Video...';
+  
+  try {
+    homeScreen.style.display = 'none';
+    document.getElementById('transcript-box').style.display = 'block';
+
+    if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
+      throw new Error("YouTube API failed to load");
+    }
+
+    if (player) {
+      player.loadVideoById(videoId);
+    } else {
+      player = new YT.Player('player', {
+        height: '360',
+        width: '640',
+        videoId: videoId,
+        events: {
+          'onReady': (event) => {
+            event.target.playVideo();
+          },
+          'onError': () => {
+            throw new Error("Error loading video");
+          }
         }
-      }
-    });
+      });
+    }
+  } catch (error) {
+    alert(error.message);
+    homeScreen.style.display = 'block';
+    document.getElementById('transcript-box').style.display = 'none';
+  } finally {
+    hideSpinner(startGameBtn);
+    startGameBtn.textContent = 'Start Game';
   }
 });
-document.getElementById('start-with-transcript').addEventListener('click', startGame);
+document.getElementById('start-with-transcript').addEventListener('click', async function() {
+  const btn = this;
+  showSpinner(btn);
+  btn.textContent = 'Processing...';
+  try {
+    await startGame();
+  } catch (error) {
+    alert(error.message);
+    homeScreen.style.display = 'block';
+  } finally {
+    hideSpinner(btn);
+    btn.textContent = 'Start Typing Game';
+  }
+});
 
 
 
