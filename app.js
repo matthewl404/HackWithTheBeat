@@ -1,15 +1,20 @@
+//DOM Elements
 const songInput = document.getElementById('song-input');
 const startGameBtn = document.getElementById('start-game');
 const toggleLeaderboardBtn = document.getElementById('toggle-leaderboard');
 const leaderboardDiv = document.getElementById('leaderboard');
 const homeScreen = document.getElementById('home-screen');
 const gameScreen = document.getElementById('game-screen');
-let player;
-let currentSnippetIndex = 0;
+const transcriptBox = document.getElementById('transcript-box');
+const codeInput = document.getElementById('code-input');
+const codeDisplay = document.getElementById('code-display');
+
+//Game variables
+let player = null;
 let currentSnippet = '';
 let currentCharIndex = 0;
 let bpm = 80;
-let beatInterval;
+let beatInterval = null;
 let lastBeatTime = 0;
 let score = 0;
 let correctChars = 0;
@@ -20,10 +25,16 @@ let transcriptChunks = [];
 let currentChunkIndex = 0;
 
 function onYouTubeIframeAPIReady() {
-  // makes things work
+  console.log("Its ready to go");
 }
-
-
+//game start
+function init() {
+  leaderboardDiv.style.display = 'none';
+  gameScreen.style.display = 'none';
+  transcriptBox.style.display = 'none';
+  checkInputs();
+}
+//helpful functions
 function showSpinner(button) {
   button.classList.add('button-loading');
   const spinner = document.createElement('span');
@@ -54,15 +65,13 @@ function processTranscript(text) {
 }
 
 function prepareNewSnippet() {
-  const codeDisplay = document.getElementById('code-display');
   codeDisplay.innerHTML = '';
-  
   currentSnippet.split('').forEach(char => {
     const span = document.createElement('span');
     span.textContent = char;
     codeDisplay.appendChild(span);
   });
-  document.getElementById('code-input').value = '';
+  codeInput.value = '';
   currentCharIndex = 0;
   score = 0;
   correctChars = 0;
@@ -70,41 +79,30 @@ function prepareNewSnippet() {
   onBeatHits = 0;
   updateDisplay();
 }
-  
+//game functions
 async function startGame() {
   const btn = document.getElementById('start-with-transcript');
   const transcript = document.getElementById('user-transcript').value.trim();
-  
-  // Show spinner immediately
   showSpinner(btn);
   btn.textContent = 'Processing...';
-
   try {
-    if (!transcript) {
-      throw new Error("Please paste a transcript first");
-    }
-    
+    if (!transcript) throw new Error("Please paste a transcript first");
     fullTranscript = transcript;
     transcriptChunks = processTranscript(fullTranscript);
     currentChunkIndex = 0;
-    
     if (transcriptChunks.length === 0) {
       throw new Error("Couldn't extract usable text from transcript");
     }
-    
     currentSnippet = transcriptChunks[0];
     prepareNewSnippet();
-    
     const beatDuration = 60000 / bpm;
     beatInterval = setInterval(() => {
       lastBeatTime = Date.now();
       animateBeat();
     }, beatDuration);
-    
-    document.getElementById('code-input').focus();
+    codeInput.focus();
     gameScreen.style.display = 'block';
-    document.getElementById('transcript-box').style.display = 'none';
-    
+    transcriptBox.style.display = 'none'; 
   } catch (error) {
     alert(error.message);
     homeScreen.style.display = 'block';
@@ -117,42 +115,32 @@ async function startGame() {
 function animateBeat() {
   const indicator = document.getElementById('beat-indicator');
   indicator.style.transform = 'scale(1.5)';
-  setTimeout(() => {
-    indicator.style.transform = 'scale(1)';
-  }, 100);
+  setTimeout(() => indicator.style.transform = 'scale(1)', 100);
 }
 
+
 function checkKeyPress(e) {
-  if (e.key.length > 1) return;
+  if (e.key.length > 1 || e.ctrlKey || e.altKey || e.metaKey) return;
+  
   const currentTime = Date.now();
   const isOnBeat = Math.abs(currentTime - lastBeatTime) < 200;
-
-  if (e.key === currentSnippet[currentCharIndex]) {
-    if (e.ctrlKey || e.altKey || e.metaKey) return;
-    const codeDisplay = document.getElementById('code-display');
-    const span = document.createElement('span');
-    span.className = 'char-highlight';
-    span.textContent = e.key;
-    if (isOnBeat) {
-      span.style.color = '#66ff66';
-      score += 2;
-      onBeatHits++;
-    } else {
-      span.style.color = '#66ccff';
-      score += 1;
-    }
-    codeDisplay.replaceChild(span, codeDisplay.childNodes[currentCharIndex]);
-    
+  const isCorrect = e.key === currentSnippet[currentCharIndex];
+  
+  const span = document.createElement('span');
+  span.className = 'char-highlight';
+  span.textContent = isCorrect ? e.key : currentSnippet[currentCharIndex];
+  
+  if (isCorrect) {
+    span.style.color = isOnBeat ? '#66ff66' : '#66ccff';
+    score += isOnBeat ? 2 : 1;
     correctChars++;
     currentCharIndex++;
+    if (isOnBeat) onBeatHits++;
   } else {
-    const codeDisplay = document.getElementById('code-display');
-    const span = document.createElement('span');
-    span.className = 'char-highlight';
-    span.textContent = currentSnippet[currentCharIndex];
     span.style.color = '#ff3366';
-    codeDisplay.replaceChild(span, codeDisplay.childNodes[currentCharIndex]);
   }
+  
+  codeDisplay.replaceChild(span, codeDisplay.childNodes[currentCharIndex]);
   totalChars++;
   updateDisplay();
   
@@ -192,18 +180,16 @@ function showResults() {
   }
 }
 
-  function endGame() {
-    document.getElementById('code-input').value = '';
-    gameScreen.style.display = 'none';
-    homeScreen.style.display = 'block';
-    document.getElementById('transcript-box').style.display = 'none';
-    clearInterval(beatInterval);
-    if (player && player.pauseVideo) {
-      player.pauseVideo();
-    }
-  }
+function endGame() {
+  codeInput.value = '';
+  gameScreen.style.display = 'none';
+  homeScreen.style.display = 'block';
+  transcriptBox.style.display = 'none';
+  clearInterval(beatInterval);
+  if (player && player.pauseVideo) player.pauseVideo();
+}
 
-document.getElementById('code-input').addEventListener('keypress', checkKeyPress);
+codeInput.addEventListener('keypress', checkKeyPress);
 document.getElementById('back-button').addEventListener('click', endGame);
 
 startGameBtn.addEventListener('click', async () => {
@@ -218,9 +204,9 @@ startGameBtn.addEventListener('click', async () => {
   
   try {
     homeScreen.style.display = 'none';
-    document.getElementById('transcript-box').style.display = 'block';
+    transcriptBox.style.display = 'block';
 
-    if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
+    if (typeof YT === 'undefined') {
       throw new Error("YouTube API failed to load");
     }
 
@@ -244,7 +230,7 @@ startGameBtn.addEventListener('click', async () => {
   } catch (error) {
     alert(error.message);
     homeScreen.style.display = 'block';
-    document.getElementById('transcript-box').style.display = 'none';
+    transcriptBox.style.display = 'none';
   } finally {
     hideSpinner(startGameBtn);
     startGameBtn.textContent = 'Start Game';
@@ -265,8 +251,7 @@ document.getElementById('start-with-transcript').addEventListener('click', async
   }
 });
 
-
-
+//init YT API
 const tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 tag.onerror = function() {
@@ -294,4 +279,4 @@ function extractVideoID(url) {
   const match = url.match(regex);
   return match ? match[1] : null;
 }
-  
+init();
