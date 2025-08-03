@@ -6,6 +6,8 @@ const leaderboardDiv = document.getElementById('leaderboard');
 const homeScreen = document.getElementById('home-screen');
 const gameScreen = document.getElementById('game-screen');
 let player;
+let currentSnippetIndex = 0;
+
 const codeSnippets = {
   python: [
     'print("Hello")',
@@ -32,8 +34,13 @@ let correctChars = 0;
 let totalChars = 0;
 let onBeatHits = 0;
 
+function getNextSnippet() {
+  currentSnippetIndex = (currentSnippetIndex + 1) % codeSnippets[languageSelect.value].length;
+  return codeSnippets[languageSelect.value][currentSnippetIndex];
+}
+
 function startGame() {
-  currentSnippet = codeSnippets[languageSelect.value][0];
+  currentSnippet = getNextSnippet();
   const codeDisplay = document.getElementById('code-display');
   codeDisplay.innerHTML = '';
   
@@ -68,9 +75,113 @@ function animateBeat() {
   }, 100);
 }
 
+function checkKeyPress(e) {
+  if (e.key.length > 1) return;
+  const currentTime = Date.now();
+  const isOnBeat = Math.abs(currentTime - lastBeatTime) < 200;
+
+  if (e.key === currentSnippet[currentCharIndex]) {
+    if (e.ctrlKey || e.altKey || e.metaKey) return;
+    const codeDisplay = document.getElementById('code-display');
+    const span = document.createElement('span');
+    span.className = 'char-highlight';
+    span.textContent = e.key;
+    if (isOnBeat) {
+      span.style.color = '#66ff66';
+      score += 2;
+      onBeatHits++;
+    } else {
+      span.style.color = '#66ccff';
+      score += 1;
+    }
+    codeDisplay.replaceChild(span, codeDisplay.childNodes[currentCharIndex]);
+    
+    correctChars++;
+    currentCharIndex++;
+  } else {
+    // Wrong character feedback
+    const codeDisplay = document.getElementById('code-display');
+    const span = document.createElement('span');
+    span.className = 'char-highlight';
+    span.textContent = currentSnippet[currentCharIndex];
+    span.style.color = '#ff3366';
+    codeDisplay.replaceChild(span, codeDisplay.childNodes[currentCharIndex]);
+  }
+  totalChars++;
+  updateDisplay();
+  
+  if (currentCharIndex >= currentSnippet.length) {
+    clearInterval(beatInterval);
+    showResults();
+  }
+}
+
+function updateDisplay() {
+  const accuracy = Math.round((correctChars / totalChars) * 100) || 0;
+  const timing = Math.round((onBeatHits / totalChars) * 100) || 0;
+  document.getElementById('score-display').textContent = 
+    `Score: ${score} | Accuracy: ${accuracy}% | Timing: ${timing}%`;
+}
+
+function showResults() {
+  alert(`Completed!\nScore: ${score}\nAccuracy: ${Math.round((correctChars/totalChars)*100)}%\nTiming: ${Math.round((onBeatHits/totalChars)*100)}%`);
+}
+
+document.getElementById('code-input').addEventListener('keypress', checkKeyPress);
+document.getElementById('back-button').addEventListener('click', () => {
+  document.getElementById('code-input').value = '';
+  gameScreen.style.display = 'none';
+  homeScreen.style.display = 'block';
+  clearInterval(beatInterval);
+});
+startGameBtn.addEventListener('click', () => {
+  startGameBtn.disabled = true;
+  startGameBtn.textContent = 'Loading...';
+  const videoId = extractVideoID(songInput.value.trim());
+  if (!videoId) {
+    alert("Please enter a valid YouTube URL.");
+    startGameBtn.disabled = false;
+    startGameBtn.textContent = 'Start Game';
+    return;
+  }
+homeScreen.style.display = 'none';
+  gameScreen.style.display = 'block';
+  
+  if (player) {
+    player.loadVideoById(videoId);
+    startGameBtn.disabled = false;
+    startGameBtn.textContent = 'Start Game';
+  } else {
+    player = new YT.Player('player', {
+      height: '360',
+      width: '640',
+      videoId: videoId,
+      events: {
+        'onReady': (event) => {
+          event.target.playVideo();
+          startGame();
+          startGameBtn.disabled = false;
+          startGameBtn.textContent = 'Start Game';
+        },
+        'onError': () => {
+          alert("Error loading video")
+          startGameBtn.disabled = false;
+          startGameBtn.textContent = 'Start Game';
+        }
+      }
+    });
+  }
+});
+
+
+
 
 const tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
+tag.onerror = function() {
+  alert("Failed to load YouTube API. Please check your internet connection.");
+  startGameBtn.disabled = true;
+};
 document.head.appendChild(tag);
 
 function checkInputs() {
@@ -97,31 +208,4 @@ function extractVideoID(url) {
   const match = url.match(regex);
   return match ? match[1] : null;
 }
-
-function onYouTubeIframeAPIReady() {
-  // player created on Start Game click
-}
-
-startGameBtn.addEventListener('click', () => {
-  const videoId = extractVideoID(songInput.value.trim());
-  if (!videoId) {
-    alert("Please enter a valid YouTube URL.");
-    return;
-  }
   
-  homeScreen.style.display = 'none';
-  gameScreen.style.display = 'block';
-  if (player) {
-    player.loadVideoById(videoId);
-  } else {
-    player = new YT.Player('player', {
-      height: '360',
-      width: '640',
-      videoId: videoId,
-      events: {
-        'onReady': (event) => event.target.playVideo()
-      }
-    });
-  }
-});
-                              
