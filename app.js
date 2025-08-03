@@ -124,6 +124,9 @@ function updateDisplay() {
 }
 
 function showResults() {
+  if (player && player.pauseVideo) {
+    player.pauseVideo();
+  }
   alert(`Completed!\nScore: ${score}\nAccuracy: ${Math.round((correctChars/totalChars)*100)}%\nTiming: ${Math.round((onBeatHits/totalChars)*100)}%`);
 }
 
@@ -133,6 +136,9 @@ document.getElementById('back-button').addEventListener('click', () => {
   gameScreen.style.display = 'none';
   homeScreen.style.display = 'block';
   clearInterval(beatInterval);
+  if (player && player.pauseVideo) {
+    player.pauseVideo();
+  }
 });
 startGameBtn.addEventListener('click', () => {
   startGameBtn.disabled = true;
