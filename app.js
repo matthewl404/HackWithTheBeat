@@ -176,7 +176,7 @@ function processTranscript(text)
 {
   const textChunks = text.match(/[^.!?]+[.!?]/g);
   if(!textChunks)
-    return [];
+    textChunks = text.split(/\r?\n/);
   const trimmedChunks=[];
   for(let chunk of textChunks)
     {
@@ -184,6 +184,7 @@ function processTranscript(text)
       if(trimmed.length>10)
         trimmedChunks.push(trimmed);
     }
+  return trimmedChunks;
   //return text.split(/(?<=[.!?])\s+/).filter(chunk => chunk.length > 10);
 }
 
