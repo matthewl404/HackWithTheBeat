@@ -269,14 +269,13 @@ textarea {
   border-radius: 10px;
   display: none; /* Hidden by default */
 }
-<<<<<<< HEAD
 #leaderboard {
   display: none;
   position: absolute;
   top: 40%; /* Just below the button */
   left: 50%;
   transform: translateX(-50%);
-  width: 500px;
+  width: 550px;
   max-width: 90vw;
   height: 450px;
   overflow-y: auto;
@@ -315,5 +314,3 @@ textarea {
   border: 2px solid #66ccff;
   box-shadow: 0 0 10px #66ccff55;
 }
-=======
->>>>>>> 2e64fad8ee75e79235e7d021374e1317ec8c05d6
