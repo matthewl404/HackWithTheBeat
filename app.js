@@ -101,18 +101,21 @@ function startBeat() {
 }
 
 function checkKeyPress(e) {
-  // Allow normal typing behavior first
-  const input = e.target;
-  const currentChar = input.value[input.value.length - 1]; // Get last typed char
-  
-  // Prevent processing if no character was actually typed
-  if (!currentChar) return;
-  
-  // Process the character
-  if (currentChar === currentSnippet[currentCharIndex]) {
+  // Prevent default behavior for all keys except Tab and Escape
+  if (!['Tab', 'Escape'].includes(e.key)) {
+    e.preventDefault();
+  }
+
+  // Ignore modifier keys and non-character keys
+  if (e.key.length > 1 || e.ctrlKey || e.altKey || e.metaKey) return;
+
+  totalChars++; // Count every key press as an attempt
+
+  // Check if the typed character matches the current target character
+  if (e.key === currentSnippet[currentCharIndex]) {
     const span = document.createElement('span');
-    span.className = 'char-highlight';
-    span.textContent = currentChar;
+    span.className = 'char-highlight correct';
+    span.textContent = e.key;
     
     // Check if typed on beat
     const currentTime = Date.now();
@@ -147,15 +150,13 @@ function checkKeyPress(e) {
   
   updateDisplay();
   
-  // Clear input but keep focus
-  input.value = '';
-  
   // Check if snippet completed
   if (currentCharIndex >= currentSnippet.length) {
     clearInterval(beatInterval);
     showResults();
   }
 }
+
 // Helper Functions
 function showSpinner(button) {
   button.classList.add('button-loading');
@@ -172,20 +173,19 @@ function hideSpinner(button) {
   button.disabled = false;
 }
 
-function processTranscript(text) 
-{
+function processTranscript(text) {
   let textChunks = text.match(/[^.!?]+[.!?]/g);
-  if(!textChunks)
+  if(!textChunks) {
     textChunks = text.split(/\r?\n/);
-  const trimmedChunks=[];
-  for(let chunk of textChunks)
-    {
-      const trimmed = chunk.trim();
-      if(trimmed.length>10)
-        trimmedChunks.push(trimmed);
+  }
+  const trimmedChunks = [];
+  for(let chunk of textChunks) {
+    const trimmed = chunk.trim();
+    if(trimmed.length > 10) {
+      trimmedChunks.push(trimmed);
     }
+  }
   return trimmedChunks;
-  //return text.split(/(?<=[.!?])\s+/).filter(chunk => chunk.length > 10);
 }
 
 function prepareNewSnippet() {
@@ -193,7 +193,7 @@ function prepareNewSnippet() {
   currentSnippet.split('').forEach(char => {
     const span = document.createElement('span');
     span.textContent = char;
-    span.className = 'char-highlight'; 
+    span.className = 'char-highlight';
     codeDisplay.appendChild(span);
   });
   codeInput.value = '';
@@ -204,6 +204,7 @@ function prepareNewSnippet() {
   onBeatHits = 0;
   updateDisplay();
   
+  // Ensure input is focused and ready
   codeInput.focus();
 }
 
@@ -339,7 +340,7 @@ function renderLeaderboard() {
 }
 
 // Event Listeners
-codeInput.addEventListener('input', checkKeyPress);
+codeInput.addEventListener('keydown', checkKeyPress);
 document.getElementById('back-button').addEventListener('click', endGame);
 document.getElementById('start-with-transcript').addEventListener('click', async function() {
   const btn = this;
