@@ -10,18 +10,44 @@ let currentSnippetIndex = 0;
 
 const codeSnippets = {
   python: [
-    'print("Hello")',
-    'x = 5',
-    'for i in range(3):',
-    'def greet(name):',
-    'if x > 0:'
+    'print("Hello World")',
+    'x = 10\ny = 5\nprint(x + y)',
+    'def greet(name):\n    print(f"Hello, {name}!")',
+    'for i in range(5):\n    print(i)',
+    'numbers = [1, 2, 3]\nsquared = [n**2 for n in numbers]',
+    'try:\n    result = 10 / 0\nexcept ZeroDivisionError:\n    print("Cannot divide by zero")'
   ],
   javascript: [
-    'console.log("Hello")',
-    'let x = 5',
-    'for(let i=0; i<3; i++)',
-    'function greet(name)',
-    'if (x > 0)'
+    'console.log("Hello World")',
+    'const x = 10;\nconst y = 5;\nconsole.log(x + y)',
+    'function greet(name) {\n    console.log(`Hello, ${name}!`)\n}',
+    'for (let i = 0; i < 5; i++) {\n    console.log(i)\n}',
+    'const numbers = [1, 2, 3];\nconst squared = numbers.map(n => n**2)',
+    'fetch("https://api.example.com/data")\n    .then(response => response.json())\n    .catch(error => console.error("Error:", error))'
+  ],
+  java: [
+    'System.out.println("Hello World");',
+    'int x = 10;\nint y = 5;\nSystem.out.println(x + y);',
+    'public static void greet(String name) {\n    System.out.println("Hello, " + name);\n}',
+    'for (int i = 0; i < 5; i++) {\n    System.out.println(i);\n}',
+    'List<Integer> numbers = Arrays.asList(1, 2, 3);\nList<Integer> squared = numbers.stream().map(n -> n*n).collect(Collectors.toList());',
+    'try {\n    int result = 10 / 0;\n} catch (ArithmeticException e) {\n    System.out.println("Cannot divide by zero");\n}'
+  ],
+  html: [
+  '<!DOCTYPE html>\n<html>\n<head>\n    <title>Page Title</title>\n</head>',
+    '<body>\n    <h1>Main Heading</h1>\n    <p>Paragraph text</p>\n</body>',
+    '<ul>\n    <li>Item 1</li>\n    <li>Item 2</li>\n</ul>',
+    '<form>\n    <input type="text" placeholder="Enter name">\n    <button type="submit">Submit</button>\n</form>',
+    '<div class="container">\n    <header>Header</header>\n    <main>Content</main>\n</div>',
+    '<a href="https://example.com" target="_blank">Visit Example</a>'
+  ],
+  css: [
+    'body {\n    font-family: Arial;\n    margin: 0;\n}',
+    '.container {\n    display: flex;\n    justify-content: center;\n}',
+    'button {\n    padding: 10px 20px;\n    background-color: blue;\n    color: white;\n}',
+    '@media (max-width: 600px) {\n    .sidebar {\n        display: none;\n    }\n}',
+    'h1 {\n    color: #333;\n    text-align: center;\n    margin-bottom: 20px;\n}',
+    'a:hover {\n    text-decoration: none;\n    color: red;\n}'
   ]
 };
 let currentSnippet = '';
@@ -35,8 +61,13 @@ let totalChars = 0;
 let onBeatHits = 0;
 
 function getNextSnippet() {
-  currentSnippetIndex = (currentSnippetIndex + 1) % codeSnippets[languageSelect.value].length;
-  return codeSnippets[languageSelect.value][currentSnippetIndex];
+  const snippets = codeSnippets[languageSelect.value];
+  if (currentSnippetIndex >= snippets.length - 1) {
+    currentSnippetIndex = 0;
+    return {snippet: snippets[0], completedAll: true};
+  }
+  currentSnippetIndex++;
+  return {snippet: snippets[currentSnippetIndex], completedAll: false};
 }
 
 function startGame() {
