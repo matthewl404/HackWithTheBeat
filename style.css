@@ -43,4 +43,81 @@ button:disabled {
   margin-left: auto;
   margin-right: auto;
 }
+#game-screen {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
+#player {
+  margin: 20px auto;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 20px #3366ff;
+}
+
+#code-display {
+  font-size: 1.5em;
+  letter-spacing: 2px;
+  margin: 30px 0;
+  padding: 20px;
+  background-color: #001122;
+  border-radius: 10px;
+  min-height: 1.5em;
+}
+
+#beat-indicator {
+  font-size: 3em;
+  color: #66ccff;
+  margin: 20px 0;
+  transition: transform 0.1s ease, color 0.3s ease;
+}
+
+#score-display {
+  font-size: 1.2em;
+  margin: 20px 0;
+  padding: 10px;
+  background-color: #001122;
+  border-radius: 5px;
+}
+
+.char-highlight {
+  position: relative;
+}
+
+.char-highlight::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #66ff66;
+  animation: pulse 0.5s;
+}
+@keyframes pulse {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+#back-button {
+  background-color: #ff3366;
+  box-shadow: 0 0 10px #ff3366;
+  margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+  #player {
+    width: 100%;
+    height: auto;
+  }
+  
+  h1 {
+    font-size: 2em;
+  }
+  
+  #code-display {
+    font-size: 1.2em;
+  }
+}
