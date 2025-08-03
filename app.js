@@ -120,6 +120,7 @@ async function startGame() {
   } catch (error) {
     alert(error.message);
     homeScreen.style.display = 'block';
+    leaderboardContainer.style.display = 'block';
   } finally {
     hideSpinner(btn);
     btn.textContent = 'Start Typing Game';
@@ -191,6 +192,13 @@ function showResults() {
   if (next.completedAll) {
     alert(`Perfect! You completed the entire transcript!\nFinal Score: ${score}\nAccuracy: ${accuracy}%\nTiming: ${timing}%`);
     endGame();
+    saveRunToHistory({
+      score,
+      accuracy,
+      timing,
+      videoTitle: player && player.getVideoData ? player.getVideoData().title : songInput.value,
+      words: currentSnippet.length
+    });
   } else if (next.chunk) {
     if (confirm(`Score: ${score}\nContinue to next part?`)) {
       currentSnippet = next.chunk;
@@ -208,6 +216,7 @@ function showResults() {
     document.getElementById('code-input').value = '';
     gameScreen.style.display = 'none';
     homeScreen.style.display = 'block';
+    leaderboardContainer.style.display = 'block';
     document.getElementById('transcript-box').style.display = 'none';
     clearInterval(beatInterval);
     if (player && player.pauseVideo) {
@@ -295,7 +304,8 @@ songInput.addEventListener('input', checkInputs);
 
 toggleLeaderboardBtn.addEventListener('click', () => {
   if (leaderboardDiv.style.display === 'none') {
-    leaderboardDiv.style.display = 'block';
+    renderLeaderboard();
+    leaderboardDiv.style.display = leaderboardDiv.style.display === 'block' ? 'none' : 'block';
   } else {
     leaderboardDiv.style.display = 'none';
   }
@@ -306,4 +316,37 @@ function extractVideoID(url) {
   const match = url.match(regex);
   return match ? match[1] : null;
 }
-  
+function saveRunToHistory({ score, accuracy, timing, videoTitle, words }) {
+  const history = JSON.parse(localStorage.getItem('rhythmcode_history') || '[]');
+  history.push({
+    score,
+    accuracy,
+    timing,
+    videoTitle,
+    words,
+    date: new Date().toISOString()
+  });
+  localStorage.setItem('rhythmcode_history', JSON.stringify(history));
+}
+function renderLeaderboard() {
+  const leaderboardList = document.getElementById('leaderboard-list');
+  leaderboardList.innerHTML = '';
+  let history = JSON.parse(localStorage.getItem('rhythmcode_history') || '[]');
+  // Sort by highest accuracy
+  history = history.sort((a, b) => b.accuracy - a.accuracy);
+
+  if (history.length === 0) {
+    leaderboardList.innerHTML = '<li>No history yet.</li>';
+    return;
+  }
+
+  history.forEach(run => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <strong>${run.videoTitle}</strong><br>
+      Score: ${run.score} | Accuracy: ${run.accuracy}% | Timing: ${run.timing}%<br>
+      Words: ${run.words} | Date: ${new Date(run.date).toLocaleString()}
+    `;
+    leaderboardList.appendChild(li);
+  });
+}

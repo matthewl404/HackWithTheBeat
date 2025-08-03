@@ -247,3 +247,48 @@ textarea {
   border-radius: 10px;
   display: none; /* Hidden by default */
 }
+#leaderboard {
+  display: none;
+  position: absolute;
+  top: 40%; /* Just below the button */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  max-width: 90vw;
+  height: 450px;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #0f0f2f 60%, #222 100%);
+  color: #aaffff;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px #3366ff88, 0 2px 8px #000a;
+  z-index: 1000;
+  padding: 18px 14px 14px 14px;
+  border: 2px solid #3366ff;
+  text-align: left;
+}
+
+#leaderboard h2 {
+  color: #66ccff;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  font-size: 1.1em;
+  text-shadow: 0 0 6px #33bbff88;
+}
+
+#leaderboard-list li {
+  font-size: 0.9em;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #3366ff44;
+  padding-bottom: 8px;
+  background: #001933cc;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px #3366ff22;
+  padding: 10px 12px;
+  text-align: left;
+  transition: background 0.2s;
+}
+#leaderboard-list li:first-child {
+  background: linear-gradient(90deg, #223366 60%, #3366ff44 100%);
+  border: 2px solid #66ccff;
+  box-shadow: 0 0 10px #66ccff55;
+}
