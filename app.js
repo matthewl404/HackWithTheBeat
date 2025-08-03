@@ -76,10 +76,8 @@ async function startGame() {
 
 function startBeat() {
   const beatDuration = 60000 / bpm;
-  clearInterval(beatInterval);
-  
   beatInterval = setInterval(() => {
-    lastBeatTime = Date.now();
+    lastBeatTime = Date.now(); 
   }, beatDuration);
 }
 
