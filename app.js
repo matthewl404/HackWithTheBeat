@@ -71,7 +71,8 @@ function getNextSnippet() {
 }
 
 function startGame() {
-  currentSnippet = getNextSnippet();
+  const next = getNextSnippet();
+  currentSnippet = next.snippet;
   const codeDisplay = document.getElementById('code-display');
   codeDisplay.innerHTML = '';
   
@@ -130,7 +131,6 @@ function checkKeyPress(e) {
     correctChars++;
     currentCharIndex++;
   } else {
-    // Wrong character feedback
     const codeDisplay = document.getElementById('code-display');
     const span = document.createElement('span');
     span.className = 'char-highlight';
@@ -155,12 +155,24 @@ function updateDisplay() {
 }
 
 function showResults() {
+  const next = getNextSnippet();
+  const accuracy = Math.round((correctChars / totalChars) * 100) || 0;
+  const timing = Math.round((onBeatHits / totalChars) * 100) || 0;
   if (player && player.pauseVideo) {
     player.pauseVideo();
   }
   alert(`Completed!\nScore: ${score}\nAccuracy: ${Math.round((correctChars/totalChars)*100)}%\nTiming: ${Math.round((onBeatHits/totalChars)*100)}%`);
 }
-
+  
+  document.getElementById('code-input').value = '';
+  currentCharIndex = 0;
+  score = 0;
+  correctChars = 0;
+  totalChars = 0;
+  onBeatHits = 0;
+  updateDisplay();
+  document.getElementById('code-input').focus();
+}
 document.getElementById('code-input').addEventListener('keypress', checkKeyPress);
 document.getElementById('back-button').addEventListener('click', () => {
   document.getElementById('code-input').value = '';
