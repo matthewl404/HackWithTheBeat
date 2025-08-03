@@ -174,7 +174,7 @@ function hideSpinner(button) {
 
 function processTranscript(text) 
 {
-  const textChunks = text.match(/[^.!?]+[.!?]/g);
+  let textChunks = text.match(/[^.!?]+[.!?]/g);
   if(!textChunks)
     textChunks = text.split(/\r?\n/);
   const trimmedChunks=[];
