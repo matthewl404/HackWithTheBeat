@@ -74,11 +74,24 @@ async function startGame() {
   }
 }
 
+let isOnBeat = false;
+let beatTimeout = null;
+
 function startBeat() {
   const beatDuration = 60000 / bpm;
   clearInterval(beatInterval);
+  clearTimeout(beatTimeout);
+  
   beatInterval = setInterval(() => {
-    lastBeatTime = Date.now(); // This matches the CSS animation peak at 50%
+    lastBeatTime = Date.now();
+    isOnBeat = true;
+    
+    document.getElementById('beat-outline').style.boxShadow = '0 0 15px #66ff66';
+    
+    beatTimeout = setTimeout(() => {
+      isOnBeat = false;
+      document.getElementById('beat-outline').style.boxShadow = 'none';
+    }, beatDuration * 0.2); 
   }, beatDuration);
 }
 
@@ -86,7 +99,8 @@ function checkKeyPress(e) {
   if (e.key.length > 1 || e.ctrlKey || e.altKey || e.metaKey) return;
   
   const currentTime = Date.now();
-  const isOnBeat = Math.abs(currentTime - lastBeatTime) < 250;
+  const beatWindow = 60000 / bpm * 0.2; // 20% of beat duration
+  const isOnBeat = Math.abs(currentTime - lastBeatTime) < beatWindow;
 
   if (e.key === currentSnippet[currentCharIndex]) {
     const span = document.createElement('span');
@@ -94,12 +108,17 @@ function checkKeyPress(e) {
     span.textContent = e.key;
     
     if (isOnBeat) {
-      span.style.color = '#66ff66';
+      span.classList.add('on-beat');
       score += 2;
       onBeatHits++;
-      span.classList.add('on-beat');
+      
+      // Visual feedback
+      span.style.animation = 'pulse 0.3s';
+      document.getElementById('beat-indicator').style.backgroundColor = '#66ff66';
+      setTimeout(() => {
+        document.getElementById('beat-indicator').style.backgroundColor = '#66ccff';
+      }, 300);
     } else {
-      span.style.color = '#66ccff';
       score += 1;
     }
     
@@ -112,8 +131,6 @@ function checkKeyPress(e) {
     span.textContent = currentSnippet[currentCharIndex];
     codeDisplay.replaceChild(span, codeDisplay.childNodes[currentCharIndex]);
   }
-  
-  totalChars++;
   updateDisplay();
   
   if (currentCharIndex >= currentSnippet.length) {
