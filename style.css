@@ -141,14 +141,28 @@ textarea {
   font-size: 5em;
   color: #66ccff;
   margin: 30px 0;
-  transition: transform 0.1s ease;
   text-shadow: 0 0 25px #66ccff;
-  animation: pulse 0.8s infinite alternate;
+  animation: pulse 0.8s ease-in-out infinite alternate;
+  transform-origin: center;
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+  line-height: 60px;
+  border-radius: 50%;
+  background: rgba(102, 204, 255, 0.1);
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(1.4); opacity: 1; }
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+    box-shadow: 0 0 10px #66ccff;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 1;
+    box-shadow: 0 0 30px #66ccff;
+  }
 }
 
 /* Score Display */
@@ -192,6 +206,20 @@ textarea {
 /* Animations */
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+#beat-container {
+  position: relative;
+  margin: 20px auto;
+  text-align: center;
+}
+
+#beat-label {
+  color: #aaffff;
+  font-size: 1em;
+  margin-top: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Responsive Design */
