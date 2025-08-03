@@ -10,58 +10,36 @@
 <body>
   <div id="home-screen">
     <h1>RhythmCode</h1>
-    <label for="language-select">Choose Language:</label>
-    <select id="language-select">
-      <option value="" disabled selected>Select language</option>
-      <option value="python">Python</option>
-      <option value="javascript">JavaScript</option>
-      <option value="java">Java</option>
-      <option value="html">HTML</option>
-      <option value="css">CSS</option>
-    </select>
-    <br/><br/>
-    <label for="song-input">Enter YouTube URL or Audio File:</label>
+    <label for="song-input">Enter YouTube URL:</label>
     <input type="text" id="song-input" placeholder="Paste YouTube link here" />
     <br /><br />
     <button id="start-game" disabled>Start Game</button>
     <br /><br />
     <button id="toggle-leaderboard">Toggle Leaderboard</button>
 
-    <div id="leaderboard" style="display:none;">
+    <div id="leaderboard">
       <h2>Leaderboard</h2>
       <ul id="leaderboard-list"></ul>
     </div>
   </div>
 
-  <div id="game-screen" style="display:none;">
+  <div id="game-screen">
     <div id="player"></div>
     <div id="code-display"></div>
-    <input type="text" id="code-input" style="opacity: 0; position: absolute;">
+    <input type="text" id="code-input">
     <div id="beat-indicator">●</div>
     <div id="score-display">Score: 0 | Accuracy: 0% | Timing: 0%</div>
     <button id="back-button">Back to Menu</button>
   </div>
 
-  <div id="transcript-box" style="display:none; margin:20px auto; max-width:500px;">
-  <p>Get the transcript from: 
-    <a href="https://youtubetranscript.com" target="_blank" style="color:#66ccff;">
-      youtubetranscript.com
-    </a>
-  </p>
-  <textarea 
-    id="user-transcript" 
-    rows="5" 
-    style="width:100%; padding:10px; font-family:monospace;"
-    placeholder="Paste the transcript here...">
-  </textarea>
-  <button 
-    id="start-with-transcript" 
-    style="margin-top:10px; padding:10px 20px;">
-    Start Typing Game
-  </button>
-</div>
+  <div id="transcript-box">
+    <p>Get transcript from: 
+      <a href="https://youtubetranscript.com" target="_blank">youtubetranscript.com</a>
+    </p>
+    <textarea id="user-transcript" placeholder="Paste transcript here..."></textarea>
+    <button id="start-with-transcript">Start Typing Game</button>
+  </div>
   
   <script src="app.js"></script>
 </body>
 </html>
-
