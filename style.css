@@ -98,6 +98,7 @@ button:disabled {
 
 .char-highlight {
   position: relative;
+  display: inline-block;
 }
 
 .char-highlight.correct {
@@ -119,9 +120,15 @@ button:disabled {
   background: rgba(102, 204, 255, 0.2);
   border-radius: 3px;
   padding: 0 2px;
+  animation: pulse 0.3s;
 }
 
-/* Beat Indicator Styles */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
 #beat-container {
   position: relative;
   margin: 30px auto;
@@ -136,21 +143,24 @@ button:disabled {
   border: 3px solid #ffffff;
   border-radius: 50%;
   box-sizing: border-box;
+  z-index: 0;
+  transition: box-shadow 0.2s ease-out;
 }
 
 #beat-indicator {
   position: absolute;
-  width: 0; 
+  width: 0;
   height: 0;
   background: #66ccff;
   border-radius: 50%;
-  left: 50%; 
-  top: 50%;  
-  transform: translate(-50%, -50%); 
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   animation: beat-pulse 1s ease-out infinite;
   box-shadow: 0 0 15px #66ccff;
-  opacity: 0; 
-  transition: background-color 0.2s;
+  opacity: 0;
+  transition: all 0.2s ease-out;
+  z-index: 1;
 }
 
 @keyframes beat-pulse {
@@ -160,7 +170,7 @@ button:disabled {
     opacity: 0;
   }
   50% {
-    width: 94px; 
+    width: 94px;
     height: 94px;
     opacity: 1;
   }
@@ -170,6 +180,7 @@ button:disabled {
     opacity: 0;
   }
 }
+
 #score-display {
   font-size: 1.2em;
   margin: 20px 0;
@@ -228,6 +239,20 @@ button:disabled {
   border-radius: 5px;
 }
 
+.bpm-control {
+  margin: 20px 0;
+}
+
+textarea {
+  width: 100%;
+  min-height: 150px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #001122;
+  color: white;
+  border: 1px solid #3366ff;
+}
+
 @media (max-width: 768px) {
   #player {
     height: 300px;
@@ -254,8 +279,6 @@ button:disabled {
   #beat-indicator {
     width: 60px;
     height: 60px;
-    left: 10px;
-    top: 10px;
   }
   #code-input {
     font-size: 16px;
