@@ -326,3 +326,57 @@ textarea {
   position: relative; 
   padding-top: 40px; 
 }
+
+#code-display {
+  font-family: monospace;
+  font-size: 1.2rem;
+  line-height: 1.5;
+  background: #001122; 
+  color: #aaffff;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  white-space: pre-wrap;
+  min-height: 100px;
+  border: 1px solid #3366ff;
+}
+
+#code-display span {
+  position: relative;
+  transition: all 0.2s;
+}
+
+#code-display span.correct {
+  color: #66ff66;
+  font-weight: bold;
+}
+
+#code-display span.incorrect {
+  color: #ff3366;
+  text-decoration: underline;
+}
+
+#code-input {
+  font-family: monospace;
+  font-size: 1.2rem;
+  padding: 10px 15px;
+  width: 100%;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+#beat-container {
+  margin: 20px 0;
+}
+
+#score-display {
+  font-family: monospace;
+  font-size: 1.1rem;
+  margin: 15px 0;
+  padding: 10px;
+  background: #001122; 
+  color: #aaffff; 
+  border-radius: 5px;
+  border: 1px solid #3366ff;
+}
