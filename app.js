@@ -45,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
   leaderboardDiv.style.display = 'none';
   checkInputs();
   
-  // Initialize YouTube API if already loaded
   if (window.YT && YT.Player) {
     onYouTubeIframeAPIReady();
   }
@@ -82,7 +81,6 @@ async function startGame() {
     codeInput.focus();
     gameScreen.style.display = 'block';
     transcriptBox.style.display = 'none';
-    
   } catch (error) {
     alert(error.message);
     homeScreen.style.display = 'block';
@@ -97,7 +95,6 @@ function startBeat() {
   clearInterval(beatInterval);
   clearTimeout(beatTimeout);
   
-  // Start animation immediately
   lastBeatTime = Date.now();
   isOnBeat = true;
   document.getElementById('beat-outline').style.boxShadow = '0 0 15px #66ff66';
@@ -117,20 +114,12 @@ function startBeat() {
 function checkKeyPress(e) {
   // Allow normal typing behavior for alphanumeric keys
   if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
-    e.preventDefault();
-    
-    // Get the typed character
     const typedChar = e.key;
-    totalChars++; // Count every key press as an attempt
-
-    // Create a new span for the typed character
-    const typedSpan = document.createElement('span');
-    typedSpan.className = 'typed-char';
-    typedSpan.textContent = typedChar;
+    totalChars++;
     
     // Check if the typed character matches the current target character
     if (typedChar === currentSnippet[currentCharIndex]) {
-      typedSpan.classList.add('correct');
+      correctChars++;
       
       // Check if typed on beat
       const currentTime = Date.now();
@@ -138,29 +127,16 @@ function checkKeyPress(e) {
       const isOnBeatNow = Math.abs(currentTime - lastBeatTime) < beatWindow;
 
       if (isOnBeatNow) {
-        typedSpan.classList.add('on-beat');
         score += 2;
         onBeatHits++;
-        
-        // Visual feedback
-        document.getElementById('beat-indicator').style.backgroundColor = '#66ff66';
+        // Visual feedback for on-beat
+        codeInput.style.boxShadow = '0 0 10px #66ff66';
         setTimeout(() => {
-          document.getElementById('beat-indicator').style.backgroundColor = '#66ccff';
-        }, 300);
+          codeInput.style.boxShadow = 'none';
+        }, 200);
       } else {
         score += 1;
       }
-      
-      correctChars++;
-    } else {
-      typedSpan.classList.add('incorrect');
-    }
-    
-    // Insert the typed character before the next target character
-    if (currentCharIndex < codeDisplay.children.length) {
-      codeDisplay.insertBefore(typedSpan, codeDisplay.children[currentCharIndex]);
-    } else {
-      codeDisplay.appendChild(typedSpan);
     }
     
     currentCharIndex++;
@@ -169,64 +145,22 @@ function checkKeyPress(e) {
     // Check if snippet completed
     if (currentCharIndex >= currentSnippet.length) {
       clearInterval(beatInterval);
-      setTimeout(showResults, 500); // Small delay before showing results
+      setTimeout(showResults, 500);
     }
   }
   // Handle backspace
   else if (e.key === 'Backspace') {
-    e.preventDefault();
     if (currentCharIndex > 0) {
       currentCharIndex--;
-      totalChars--; // Decrement total attempts
-      if (codeDisplay.children[currentCharIndex].classList.contains('correct')) {
-        correctChars--; // Decrement correct count if needed
-      }
-      // Remove the last typed character
-      if (codeDisplay.children.length > currentCharIndex) {
-        codeDisplay.removeChild(codeDisplay.children[currentCharIndex]);
-      }
+      totalChars--;
       updateDisplay();
     }
   }
 }
 
-// Helper Functions
-function showSpinner(button) {
-  button.classList.add('button-loading');
-  const spinner = document.createElement('span');
-  spinner.className = 'loading-spinner';
-  button.appendChild(spinner);
-  button.disabled = true;
-}
-
-function hideSpinner(button) {
-  button.classList.remove('button-loading');
-  const spinner = button.querySelector('.loading-spinner');
-  if (spinner) button.removeChild(spinner);
-  button.disabled = false;
-}
-
-function processTranscript(text) {
-  if (!text || text.trim().length === 0) return [];
-  
-  let textChunks = text.match(/[^.!?]+[.!?]/g);
-  if (!textChunks) {
-    textChunks = text.split(/\r?\n/);
-  }
-  
-  return textChunks
-    .map(chunk => chunk.trim())
-    .filter(chunk => chunk.length > 10);
-}
-
 function prepareNewSnippet() {
-  codeDisplay.innerHTML = '';
-  currentSnippet.split('').forEach(char => {
-    const span = document.createElement('span');
-    span.textContent = char;
-    span.className = 'char-highlight';
-    codeDisplay.appendChild(span);
-  });
+  // Set the placeholder to show the target text
+  codeInput.placeholder = currentSnippet;
   codeInput.value = '';
   currentCharIndex = 0;
   score = 0;
@@ -234,8 +168,6 @@ function prepareNewSnippet() {
   totalChars = 0;
   onBeatHits = 0;
   updateDisplay();
-  
-  // Ensure input is focused and ready
   codeInput.focus();
 }
 
@@ -275,11 +207,49 @@ function showResults() {
 
 function endGame() {
   codeInput.value = '';
+  codeInput.placeholder = 'Start typing when beats appear...';
   gameScreen.style.display = 'none';
   homeScreen.style.display = 'block';
   transcriptBox.style.display = 'none';
   clearInterval(beatInterval);
   if (player && player.pauseVideo) player.pauseVideo();
+}
+
+// Helper Functions
+function showSpinner(button) {
+  button.classList.add('button-loading');
+  const spinner = document.createElement('span');
+  spinner.className = 'loading-spinner';
+  button.appendChild(spinner);
+  button.disabled = true;
+}
+
+function hideSpinner(button) {
+  button.classList.remove('button-loading');
+  const spinner = button.querySelector('.loading-spinner');
+  if (spinner) button.removeChild(spinner);
+  button.disabled = false;
+}
+
+function processTranscript(text) {
+  if (!text || text.trim().length === 0) return [];
+  
+  let textChunks = text.match(/[^.!?]+[.!?]/g);
+  if (!textChunks) {
+    textChunks = text.split(/\r?\n/);
+  }
+  
+  return textChunks
+    .map(chunk => chunk.trim())
+    .filter(chunk => chunk.length > 10);
+}
+
+function getNextChunk() {
+  currentChunkIndex++;
+  if (currentChunkIndex >= transcriptChunks.length) {
+    return { chunk: null, completedAll: true };
+  }
+  return { chunk: transcriptChunks[currentChunkIndex], completedAll: false };
 }
 
 // YouTube Integration
@@ -297,7 +267,6 @@ startGameBtn.addEventListener('click', async () => {
     homeScreen.style.display = 'none';
     transcriptBox.style.display = 'block';
 
-    // Wait for YT API to load
     await new Promise((resolve, reject) => {
       const checkReady = setInterval(() => {
         if (typeof YT !== 'undefined' && YT.Player) {
@@ -350,7 +319,6 @@ function renderLeaderboard() {
   const leaderboardList = document.getElementById('leaderboard-list');
   leaderboardList.innerHTML = '';
   
-  // Add clear history button at the top
   const clearButton = document.createElement('button');
   clearButton.textContent = 'Clear History';
   clearButton.className = 'clear-history-btn';
@@ -389,20 +357,7 @@ function clearHistory() {
 // Event Listeners
 codeInput.addEventListener('keydown', checkKeyPress);
 document.getElementById('back-button').addEventListener('click', endGame);
-document.getElementById('start-with-transcript').addEventListener('click', async function() {
-  const btn = this;
-  showSpinner(btn);
-  btn.textContent = 'Processing...';
-  try {
-    await startGame();
-  } catch (error) {
-    alert(error.message);
-    homeScreen.style.display = 'block';
-  } finally {
-    hideSpinner(btn);
-    btn.textContent = 'Start Typing Game';
-  }
-});
+document.getElementById('start-with-transcript').addEventListener('click', startGame);
 
 toggleLeaderboardBtn.addEventListener('click', () => {
   if (leaderboardDiv.style.display === 'none') {
@@ -439,12 +394,4 @@ function extractVideoID(url) {
   const regex = /(?:https?:\/\/)?(?:www\.)?youtu(?:\.be\/|be\.com\/watch\?v=)([\w-]{11})/;
   const match = url.match(regex);
   return match ? match[1] : null;
-}
-
-function getNextChunk() {
-  currentChunkIndex++;
-  if (currentChunkIndex >= transcriptChunks.length) {
-    return { chunk: null, completedAll: true };
-  }
-  return { chunk: transcriptChunks[currentChunkIndex], completedAll: false };
 }
