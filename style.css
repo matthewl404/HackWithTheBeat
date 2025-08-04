@@ -286,3 +286,21 @@ textarea {
     font-size: 16px;
   }
 }
+
+.typed-char {
+  display: inline-block;
+  margin-right: 2px;
+}
+
+.typed-char.correct {
+  color: #66ff66;
+}
+
+.typed-char.incorrect {
+  color: #ff3366;
+}
+
+.typed-char.on-beat {
+  background: rgba(102, 204, 255, 0.2);
+  border-radius: 3px;
+}
