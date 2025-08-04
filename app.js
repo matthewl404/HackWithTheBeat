@@ -130,13 +130,19 @@ function checkKeyPress(e) {
         score += 2;
         onBeatHits++;
         // Visual feedback for on-beat
-        codeInput.style.boxShadow = '0 0 10px #66ff66';
+        document.getElementById('beat-indicator').style.backgroundColor = '#66ff66';
         setTimeout(() => {
-          codeInput.style.boxShadow = 'none';
-        }, 200);
+          document.getElementById('beat-indicator').style.backgroundColor = '#66ccff';
+        }, 300);
       } else {
         score += 1;
       }
+      
+      // Highlight the current character in the displayed text
+      highlightCurrentChar(true);
+    } else {
+      // Highlight incorrect character
+      highlightCurrentChar(false);
     }
     
     currentCharIndex++;
@@ -151,17 +157,43 @@ function checkKeyPress(e) {
   // Handle backspace
   else if (e.key === 'Backspace') {
     if (currentCharIndex > 0) {
+      // Remove highlight from current character
+      const chars = codeDisplay.querySelectorAll('span');
+      if (chars[currentCharIndex - 1]) {
+        chars[currentCharIndex - 1].className = '';
+      }
+      
       currentCharIndex--;
       totalChars--;
+      if (chars[currentCharIndex] && chars[currentCharIndex].classList.contains('correct')) {
+        correctChars--;
+      }
       updateDisplay();
     }
   }
 }
 
+function highlightCurrentChar(isCorrect) {
+  const chars = codeDisplay.querySelectorAll('span');
+  if (chars[currentCharIndex]) {
+    chars[currentCharIndex].className = isCorrect ? 'correct' : 'incorrect';
+  }
+}
+
 function prepareNewSnippet() {
-  // Set the placeholder to show the target text
-  codeInput.placeholder = currentSnippet;
+  // Clear and populate the code display area
+  codeDisplay.innerHTML = '';
+  
+  // Create spans for each character in the snippet
+  currentSnippet.split('').forEach(char => {
+    const span = document.createElement('span');
+    span.textContent = char;
+    codeDisplay.appendChild(span);
+  });
+  
+  // Set up the input box
   codeInput.value = '';
+  codeInput.placeholder = 'Type the text above to the beat...';
   currentCharIndex = 0;
   score = 0;
   correctChars = 0;
@@ -207,7 +239,7 @@ function showResults() {
 
 function endGame() {
   codeInput.value = '';
-  codeInput.placeholder = 'Start typing when beats appear...';
+  codeDisplay.innerHTML = '';
   gameScreen.style.display = 'none';
   homeScreen.style.display = 'block';
   transcriptBox.style.display = 'none';
