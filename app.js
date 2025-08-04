@@ -11,6 +11,15 @@ const codeDisplay = document.getElementById('code-display');
 const bpmSlider = document.getElementById('bpm-slider');
 const bpmValue = document.getElementById('bpm-value');
 
+// Constants
+const BEAT_WINDOW_PERCENTAGE = 0.2; // 20% of beat duration counts as "on beat"
+const ERROR_MESSAGES = {
+  NO_TRANSCRIPT: "Please paste a transcript first",
+  NO_USABLE_TEXT: "Couldn't extract usable text from transcript",
+  YOUTUBE_API_FAILED: "YouTube API failed to load",
+  INVALID_YOUTUBE_URL: "Please enter a valid YouTube URL first"
+};
+
 // Game State
 let player = null;
 let currentSnippet = '';
@@ -35,6 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
   transcriptBox.style.display = 'none';
   leaderboardDiv.style.display = 'none';
   checkInputs();
+  
+  // Initialize YouTube API if already loaded
+  if (window.YT && YT.Player) {
+    onYouTubeIframeAPIReady();
+  }
 });
 
 // YouTube API
@@ -51,14 +65,14 @@ async function startGame() {
   btn.textContent = 'Processing...';
 
   try {
-    if (!transcript) throw new Error("Please paste a transcript first");
+    if (!transcript) throw new Error(ERROR_MESSAGES.NO_TRANSCRIPT);
     
     fullTranscript = transcript;
     transcriptChunks = processTranscript(fullTranscript);
     currentChunkIndex = 0;
     
     if (transcriptChunks.length === 0) {
-      throw new Error("Couldn't extract usable text from transcript");
+      throw new Error(ERROR_MESSAGES.NO_USABLE_TEXT);
     }
     
     currentSnippet = transcriptChunks[0];
@@ -96,7 +110,7 @@ function startBeat() {
     beatTimeout = setTimeout(() => {
       isOnBeat = false;
       document.getElementById('beat-outline').style.boxShadow = 'none';
-    }, beatDuration * 0.2);
+    }, beatDuration * BEAT_WINDOW_PERCENTAGE);
   }, beatDuration);
 }
 
@@ -120,7 +134,7 @@ function checkKeyPress(e) {
       
       // Check if typed on beat
       const currentTime = Date.now();
-      const beatWindow = 60000 / bpm * 0.2;
+      const beatWindow = (60000 / bpm) * BEAT_WINDOW_PERCENTAGE;
       const isOnBeatNow = Math.abs(currentTime - lastBeatTime) < beatWindow;
 
       if (isOnBeatNow) {
@@ -163,10 +177,15 @@ function checkKeyPress(e) {
     e.preventDefault();
     if (currentCharIndex > 0) {
       currentCharIndex--;
+      totalChars--; // Decrement total attempts
+      if (codeDisplay.children[currentCharIndex].classList.contains('correct')) {
+        correctChars--; // Decrement correct count if needed
+      }
       // Remove the last typed character
       if (codeDisplay.children.length > currentCharIndex) {
         codeDisplay.removeChild(codeDisplay.children[currentCharIndex]);
       }
+      updateDisplay();
     }
   }
 }
@@ -188,18 +207,16 @@ function hideSpinner(button) {
 }
 
 function processTranscript(text) {
+  if (!text || text.trim().length === 0) return [];
+  
   let textChunks = text.match(/[^.!?]+[.!?]/g);
-  if(!textChunks) {
+  if (!textChunks) {
     textChunks = text.split(/\r?\n/);
   }
-  const trimmedChunks = [];
-  for(let chunk of textChunks) {
-    const trimmed = chunk.trim();
-    if(trimmed.length > 10) {
-      trimmedChunks.push(trimmed);
-    }
-  }
-  return trimmedChunks;
+  
+  return textChunks
+    .map(chunk => chunk.trim())
+    .filter(chunk => chunk.length > 10);
 }
 
 function prepareNewSnippet() {
@@ -269,7 +286,7 @@ function endGame() {
 startGameBtn.addEventListener('click', async () => {
   const videoId = extractVideoID(songInput.value.trim());
   if (!videoId) {
-    alert("Please enter a valid YouTube URL first");
+    alert(ERROR_MESSAGES.INVALID_YOUTUBE_URL);
     return;
   }
 
@@ -291,7 +308,7 @@ startGameBtn.addEventListener('click', async () => {
       
       setTimeout(() => {
         clearInterval(checkReady);
-        reject(new Error("YouTube API failed to load"));
+        reject(new Error(ERROR_MESSAGES.YOUTUBE_API_FAILED));
       }, 5000);
     });
 
@@ -333,11 +350,20 @@ function renderLeaderboard() {
   const leaderboardList = document.getElementById('leaderboard-list');
   leaderboardList.innerHTML = '';
   
+  // Add clear history button at the top
+  const clearButton = document.createElement('button');
+  clearButton.textContent = 'Clear History';
+  clearButton.className = 'clear-history-btn';
+  clearButton.addEventListener('click', clearHistory);
+  leaderboardList.appendChild(clearButton);
+
   const history = JSON.parse(localStorage.getItem('rhythmcode_history') || '[]')
     .sort((a, b) => b.score - a.score);
 
   if (history.length === 0) {
-    leaderboardList.innerHTML = '<li>No history yet. Play some games!</li>';
+    const emptyMsg = document.createElement('li');
+    emptyMsg.textContent = 'No history yet. Play some games!';
+    leaderboardList.appendChild(emptyMsg);
     return;
   }
 
@@ -351,6 +377,13 @@ function renderLeaderboard() {
     if (index === 0) li.classList.add('top-score');
     leaderboardList.appendChild(li);
   });
+}
+
+function clearHistory() {
+  if (confirm('Are you sure you want to clear all game history?')) {
+    localStorage.removeItem('rhythmcode_history');
+    renderLeaderboard();
+  }
 }
 
 // Event Listeners
@@ -415,45 +448,3 @@ function getNextChunk() {
   }
   return { chunk: transcriptChunks[currentChunkIndex], completedAll: false };
 }
-// (Previous code remains the same until the renderLeaderboard function)
-
-function renderLeaderboard() {
-  const leaderboardList = document.getElementById('leaderboard-list');
-  leaderboardList.innerHTML = '';
-  
-  // Add clear history button at the top
-  const clearButton = document.createElement('button');
-  clearButton.textContent = 'Clear History';
-  clearButton.className = 'clear-history-btn';
-  clearButton.addEventListener('click', clearHistory);
-  leaderboardList.appendChild(clearButton);
-
-  const history = JSON.parse(localStorage.getItem('rhythmcode_history') || '[]')
-    .sort((a, b) => b.score - a.score);
-
-  if (history.length === 0) {
-    const emptyMsg = document.createElement('li');
-    emptyMsg.textContent = 'No history yet. Play some games!';
-    leaderboardList.appendChild(emptyMsg);
-    return;
-  }
-
-  history.forEach((run, index) => {
-    const li = document.createElement('li');
-    li.innerHTML = `
-      <strong>${run.videoTitle || 'Custom Text'}</strong><br>
-      Score: ${run.score} | Accuracy: ${run.accuracy}%<br>
-      ${new Date(run.date).toLocaleDateString()}
-    `;
-    if (index === 0) li.classList.add('top-score');
-    leaderboardList.appendChild(li);
-  });
-}
-
-function clearHistory() {
-  if (confirm('Are you sure you want to clear all game history?')) {
-    localStorage.removeItem('rhythmcode_history');
-    renderLeaderboard();
-  }
-}
-
