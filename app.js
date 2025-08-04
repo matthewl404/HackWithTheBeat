@@ -415,3 +415,45 @@ function getNextChunk() {
   }
   return { chunk: transcriptChunks[currentChunkIndex], completedAll: false };
 }
+// (Previous code remains the same until the renderLeaderboard function)
+
+function renderLeaderboard() {
+  const leaderboardList = document.getElementById('leaderboard-list');
+  leaderboardList.innerHTML = '';
+  
+  // Add clear history button at the top
+  const clearButton = document.createElement('button');
+  clearButton.textContent = 'Clear History';
+  clearButton.className = 'clear-history-btn';
+  clearButton.addEventListener('click', clearHistory);
+  leaderboardList.appendChild(clearButton);
+
+  const history = JSON.parse(localStorage.getItem('rhythmcode_history') || '[]')
+    .sort((a, b) => b.score - a.score);
+
+  if (history.length === 0) {
+    const emptyMsg = document.createElement('li');
+    emptyMsg.textContent = 'No history yet. Play some games!';
+    leaderboardList.appendChild(emptyMsg);
+    return;
+  }
+
+  history.forEach((run, index) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <strong>${run.videoTitle || 'Custom Text'}</strong><br>
+      Score: ${run.score} | Accuracy: ${run.accuracy}%<br>
+      ${new Date(run.date).toLocaleDateString()}
+    `;
+    if (index === 0) li.classList.add('top-score');
+    leaderboardList.appendChild(li);
+  });
+}
+
+function clearHistory() {
+  if (confirm('Are you sure you want to clear all game history?')) {
+    localStorage.removeItem('rhythmcode_history');
+    renderLeaderboard();
+  }
+}
+
