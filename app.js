@@ -101,59 +101,73 @@ function startBeat() {
 }
 
 function checkKeyPress(e) {
-  // Prevent default behavior for all keys except Tab and Escape
-  if (!['Tab', 'Escape'].includes(e.key)) {
+  // Allow normal typing behavior for alphanumeric keys
+  if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
     e.preventDefault();
-  }
-
-  // Ignore modifier keys and non-character keys
-  if (e.key.length > 1 || e.ctrlKey || e.altKey || e.metaKey) return;
-
-  totalChars++; // Count every key press as an attempt
-
-  // Check if the typed character matches the current target character
-  if (e.key === currentSnippet[currentCharIndex]) {
-    const span = document.createElement('span');
-    span.className = 'char-highlight correct';
-    span.textContent = e.key;
     
-    // Check if typed on beat
-    const currentTime = Date.now();
-    const beatWindow = 60000 / bpm * 0.2;
-    const isOnBeatNow = Math.abs(currentTime - lastBeatTime) < beatWindow;
+    // Get the typed character
+    const typedChar = e.key;
+    totalChars++; // Count every key press as an attempt
 
-    if (isOnBeatNow) {
-      span.classList.add('on-beat');
-      score += 2;
-      onBeatHits++;
+    // Create a new span for the typed character
+    const typedSpan = document.createElement('span');
+    typedSpan.className = 'typed-char';
+    typedSpan.textContent = typedChar;
+    
+    // Check if the typed character matches the current target character
+    if (typedChar === currentSnippet[currentCharIndex]) {
+      typedSpan.classList.add('correct');
       
-      // Visual feedback
-      document.getElementById('beat-indicator').style.backgroundColor = '#66ff66';
-      setTimeout(() => {
-        document.getElementById('beat-indicator').style.backgroundColor = '#66ccff';
-      }, 300);
+      // Check if typed on beat
+      const currentTime = Date.now();
+      const beatWindow = 60000 / bpm * 0.2;
+      const isOnBeatNow = Math.abs(currentTime - lastBeatTime) < beatWindow;
+
+      if (isOnBeatNow) {
+        typedSpan.classList.add('on-beat');
+        score += 2;
+        onBeatHits++;
+        
+        // Visual feedback
+        document.getElementById('beat-indicator').style.backgroundColor = '#66ff66';
+        setTimeout(() => {
+          document.getElementById('beat-indicator').style.backgroundColor = '#66ccff';
+        }, 300);
+      } else {
+        score += 1;
+      }
+      
+      correctChars++;
     } else {
-      score += 1;
+      typedSpan.classList.add('incorrect');
     }
     
-    // Update display
-    codeDisplay.children[currentCharIndex].replaceWith(span);
-    correctChars++;
+    // Insert the typed character before the next target character
+    if (currentCharIndex < codeDisplay.children.length) {
+      codeDisplay.insertBefore(typedSpan, codeDisplay.children[currentCharIndex]);
+    } else {
+      codeDisplay.appendChild(typedSpan);
+    }
+    
     currentCharIndex++;
-  } else {
-    // Mark incorrect
-    const span = document.createElement('span');
-    span.className = 'char-highlight incorrect';
-    span.textContent = currentSnippet[currentCharIndex];
-    codeDisplay.children[currentCharIndex].replaceWith(span);
+    updateDisplay();
+    
+    // Check if snippet completed
+    if (currentCharIndex >= currentSnippet.length) {
+      clearInterval(beatInterval);
+      setTimeout(showResults, 500); // Small delay before showing results
+    }
   }
-  
-  updateDisplay();
-  
-  // Check if snippet completed
-  if (currentCharIndex >= currentSnippet.length) {
-    clearInterval(beatInterval);
-    showResults();
+  // Handle backspace
+  else if (e.key === 'Backspace') {
+    e.preventDefault();
+    if (currentCharIndex > 0) {
+      currentCharIndex--;
+      // Remove the last typed character
+      if (codeDisplay.children.length > currentCharIndex) {
+        codeDisplay.removeChild(codeDisplay.children[currentCharIndex]);
+      }
+    }
   }
 }
 
